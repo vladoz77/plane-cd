@@ -1,108 +1,108 @@
-# Plane Deployment with ArgoCD
+# Развертывание Plane с помощью ArgoCD
 
-This repository contains the configuration for deploying [Plane](https://plane.so/) using ArgoCD in a Kubernetes cluster.
+Этот репозиторий содержит конфигурацию для развертывания [Plane](https://plane.so/) с использованием ArgoCD в Kubernetes-кластере.
 
-## Prerequisites
+## Требования
 
-- Kubernetes cluster with ArgoCD installed
-- `kubectl` configured to access your cluster
-- Helm installed (for managing the Plane chart)
-- Cert-manager installed (if using TLS/SSL)
+- Kubernetes-кластер с установленным ArgoCD
+- Настроенный `kubectl` для доступа к кластеру
+- Установленный Helm (для управления чартом Plane)
+- Установленный cert-manager (если используется TLS/SSL)
 
-## Project Structure
+## Структура проекта
 
-The configuration consists of two main parts:
+Конфигурация состоит из двух основных частей:
 
-1. **AppProject**: Defines the project scope and permissions
-2. **Application**: Defines the actual Plane deployment
+1. **AppProject**: Определяет область проекта и разрешения
+2. **Application**: Определяет непосредственно развертывание Plane
 
-## Deployment Configuration
+## Конфигурация развертывания
 
 ### AppProject (`plane-project`)
 
-- **Source Repositories**:
-  - `https://github.com/vladoz77/plane-cd.git` (custom configurations)
-  - `https://helm.plane.so/` (official Plane Helm chart)
+- **Исходные репозитории**:
+  - `https://github.com/vladoz77/plane-cd.git` (пользовательские конфигурации)
+  - `https://helm.plane.so/` (официальный Helm-чарт Plane)
   
-- **Destinations**:
-  - Deploys to `plane` namespace in the same cluster
+- **Назначения**:
+  - Развертывание в пространстве имен `plane` в том же кластере
   
-- **Permissions**:
-  - Allows all resources in the namespace (`namespaceResourceWhitelist`)
-  - Allows all cluster resources (`clusterResourceWhitelist`)
-  - Warns about orphaned resources
+- **Разрешения**:
+  - Разрешает все ресурсы в пространстве имен (`namespaceResourceWhitelist`)
+  - Разрешает все кластерные ресурсы (`clusterResourceWhitelist`)
+  - Предупреждает о "осиротевших" ресурсах
 
 ### Application (`plane`)
 
-- **Sources**:
-  - Custom values from the GitHub repository
-  - Plane Helm chart (version 1.1.1)
+- **Источники**:
+  - Пользовательские значения из GitHub-репозитория
+  - Helm-чарт Plane (версия 1.1.1)
   
-- **Sync Policy**:
-  - Automated sync enabled
-  - Creates namespace if not exists
-  - Prunes resources last during sync
+- **Политика синхронизации**:
+  - Автоматическая синхронизация включена
+  - Создает пространство имен, если оно не существует
+  - Удаляет ресурсы в последнюю очередь при синхронизации
   
-- **Ingress Configuration**:
-  - Host: `plane.home-local.site`
-  - TLS with cert-manager using `letsencrypt-issuer`
+- **Конфигурация Ingress**:
+  - Хост: `plane.home-local.site`
+  - TLS с использованием cert-manager и `letsencrypt-issuer`
 
-## Deployment Steps
+## Шаги развертывания
 
-1. Apply the AppProject:
+1. Примените AppProject:
    ```bash
    kubectl apply -f plane-project.yaml -n argocd
    ```
 
-2. Apply the Application:
+2. Примените Application:
    ```bash
    kubectl apply -f plane-application.yaml -n argocd
    ```
 
-3. Monitor the deployment in ArgoCD UI or using:
+3. Мониторинг развертывания через UI ArgoCD или команду:
    ```bash
    argocd app get plane
    ```
 
-## Customization
+## Настройка
 
-To customize the deployment:
+Для настройки развертывания:
 
-1. Edit the `values.yaml` in the GitHub repository
-2. Update the `targetRevision` in the Application to point to your desired chart version
-3. Modify the ingress host and annotations as needed
+1. Отредактируйте `values.yaml` в GitHub-репозитории
+2. Обновите `targetRevision` в Application до нужной версии чарта
+3. Измените хост и аннотации Ingress при необходимости
 
-## Accessing Plane
+## Доступ к Plane
 
-After successful deployment, Plane will be accessible at:
-- `https://plane.home-local.site` (if DNS is properly configured)
+После успешного развертывания Plane будет доступен по адресу:
+- `https://plane.home-local.site` (при правильной настройке DNS)
 
-## Troubleshooting
+## Устранение неполадок
 
-- Check ArgoCD sync status:
+- Проверка статуса синхронизации в ArgoCD:
   ```bash
   argocd app sync plane
   argocd app get plane
   ```
 
-- Check Kubernetes resources:
+- Проверка Kubernetes-ресурсов:
   ```bash
   kubectl get all -n plane
   ```
 
-- View logs for specific components:
+- Просмотр логов конкретных компонентов:
   ```bash
-  kubectl logs -n plane <pod-name>
+  kubectl logs -n plane <имя-pod>
   ```
 
-## Maintenance
+## Обслуживание
 
-To update Plane:
+Для обновления Plane:
 
-1. Update the `targetRevision` in the Application to the desired version
-2. ArgoCD will automatically sync the changes (if automated sync is enabled)
+1. Обновите `targetRevision` в Application до нужной версии
+2. ArgoCD автоматически синхронизирует изменения (если включена автоматическая синхронизация)
 
-For manual sync:
+Для ручной синхронизации:
 ```bash
 argocd app sync plane
 ```
