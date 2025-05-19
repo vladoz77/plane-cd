@@ -5,7 +5,8 @@ metadata:
   namespace: argocd
 spec:
   sourceRepos:
-  - '*'
+  - https://github.com/vladoz77/plane-cd.git
+  - https://helm.plane.so/
   destinations:
   - namespace: plane
     server: https://kubernetes.default.svc

@@ -4,18 +4,21 @@ metadata:
   name: plane
   namespace: argocd
   finalizers:
-  - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io/background
   labels:
     app: plane
 spec:
   project: plane-project
   sources:
+  - repoURL: https://github.com/vladoz77/plane-cd.git
+    targetRevision: HEAD
+    ref: myRepo
   - repoURL: https://helm.plane.so/
-    chart: makeplane
-    targetRevision: "1.1.1"
+    chart: plane-ce
+    targetRevision: 1.1.1
     helm:
       valueFiles:
-      - values.yaml
+      - $myRepo/values.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: plane
